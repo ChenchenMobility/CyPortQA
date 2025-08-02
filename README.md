@@ -2,13 +2,18 @@
 
 > **Anonymous research benchmark for cyclone preparedness in Port Operation (AAAI 2026 submission)**
 
-CyPortQA is the first multimodal QA benchmark that evaluates how well multimodal large‑language models (MLLMs) understand **tropical‑cyclone forecasts**, reason about **port‑level impacts**, and recommend **operational strategies**. The dataset fuses real‑world NOAA hurricane products, USCG port‑condition bulletins, and AIS‑derived port performance metrics from 2015‑2023, expanding them into 117 k+ question–answer pairs across three task groups:
+CyPortQA is the first **multimodal QA benchmark** that evaluates how well multimodal large‑language models (MLLMs) can
+1. understand **tropical‑cyclone forecasts**,
+2. reason about **port‑level impacts**, and
+3. recommend **operational strategies**.
 
-| Task | Ability | Example Question |
-|------|---------|------------------|
-| **S1** | Situation Understanding | *"Does Port X fall inside the uncertainty cone at T‑24 h?"* |
-| **S2** | Impact Estimation | *"What is the expected recovery duration (days)?"* |
-| **S3** | Decision Reasoning | *"Which port‑condition bulletin should be issued now?"* |
+The dataset fuses real‑world NOAA hurricane products, USCG port‑condition bulletins, and AIS‑derived port‑performance metrics collected from **2015 – 2023** to generate **117 k +** question–answer pairs across three task groups:
+
+| Task | Core Ability | Example Question |
+|------|--------------|------------------|
+| **S1** | Situation Understanding | *“Does Port X fall inside the uncertainty cone at T‑24 h?”* |
+| **S2** | Impact Estimation | *“What is the expected recovery duration (days)?”* |
+| **S3** | Decision Reasoning | *“Which port‑condition bulletin should be issued now?”* |
 
 ---
 
@@ -25,53 +30,80 @@ Codes/
   Model Runing - Local/     # local inference scripts (Python ≥ 3.10)
   o3 LLM Judger/            # evaluation prompts + judge harness
   Performance Eval/         # aggregation & plotting utilities
-.gitignore                  # see below
-requirements.txt            # minimal runtime deps (torch, transformers, etc.)
+requirements.txt            # pip alternative to the conda env below
+environment.yml             # full Anaconda environment (recommended)
 LICENSE                     # MIT
 README.md                   # you are here
 ```
 
-*Large files (> 100 MB) are tracked with **Git LFS** to keep the repo lightweight.*
+> **Note**  Large files (> 100 MB) are tracked with **Git LFS** to keep the repo lightweight.
 
 ---
 
 ## Quick start
 
-### 1 · Clone and set up environment
+### 1 · Set up the environment (conda recommended)
 
 ```bash
 # clone anonymously (no forks that reveal identity)
 git clone https://github.com/anon-researcher/CyPortQA-Anon.git
 cd CyPortQA-Anon
 
-# create env (conda or venv)
-conda create -n cyportqa python=3.10 -y
+# create & activate environment
+conda env create -f environment.yml
 conda activate cyportqa
-pip install -r requirements.txt
+# ‑ or ‑
+# pip install -r requirements.txt
 ```
 
-### 2 · Run a baseline on Colab (no local GPU needed)
-Open the notebook in [`Codes/Model Runing - Colab/`](Codes/Model%20Runing%20-%20Colab/) and follow the cells; supply your API key(s) when prompted:
+<details>
+<summary>📦 <code>environment.yml</code> (click to expand)</summary>
 
-```text
+```yaml
+name: cyportqa
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - git-lfs
+  - pip:
+      - torch>=2.2
+      - transformers>=4.43
+      - datasets>=2.19
+      - tiktoken>=0.6
+      - numpy
+      - pandas
+      - matplotlib
+      - tqdm
+      - scikit-learn
+```
+
+</details>
+
+### 2 · Run a baseline (Colab or local)
+Open the notebook in **`Codes/Model Runing - Colab/`** *or* the script in **`Model Runing - Local/`** and supply your API key(s) when prompted:
+
+```bash
 export OPENAI_API_KEY=xxxxx   # ChatGPT‑4o
 export GEMINI_API_KEY=xxxxx   # Gemini 2.5 Flash‑Lite
 ```
 
-The notebook downloads the benchmark JSON from this repo and writes model outputs to `Experiments_data/`.
+The runner downloads `CyPortQA.JSON`, performs inference, and writes model outputs to `Datasets/Source_data/Experiments_data/<model_name>/`.
 
 ### 3 · Judge responses
 
 ```bash
 python Codes/o3\ LLM\ Judger/judge.py \
-       --pred_dir Experiments_data/<model_name>/ \
-       --save_path Experiments_data/<model_name>_scored.jsonl
+       --pred_dir Datasets/Source_data/Experiments_data/<model_name>/ \
+       --save_path Datasets/Source_data/Experiments_data/<model_name>_scored.jsonl
 ```
 
 ### 4 · Aggregate scores & plot
 
 ```bash
-python Codes/Performance\ Eval/aggregate.py --root Experiments_data/
+python Codes/Performance\ Eval/aggregate.py --root Datasets/Source_data/Experiments_data/
 ```
 
 ---
@@ -90,18 +122,19 @@ Each QA record contains:
   "task": "S1.1",           // task category
   "question": "Does Port X …?",
   "answer": "True",         // ground‑truth
-  "metadata": {...}          // cone geoJSON, forecast table slice, etc.
+  "metadata": { ... }        // cone geoJSON, forecast table slice, etc.
 }
 ```
 
-The benchmark *does not* distribute raw NOAA imagery; scripts in `Data Collection/` download them directly from public endpoints given a scenario timestamp.
+> The benchmark *does not* redistribute raw NOAA imagery; scripts in `Data Collection/` download them from the official public endpoints given a scenario timestamp.
 
 ---
 
 ## Adding new models
-1. Place inference script or notebook under `Codes/Model Runing -*`.
-2. Ensure outputs are saved to `Datasets/Source_data/Experiments_data/<model_name>/` with one JSONL per scenario.
-3. Re‑run the judging and aggregation steps.
+
+1. Place your inference script or notebook under `Codes/Model Runing -*`.
+2. Save predictions to `Datasets/Source_data/Experiments_data/<model_name>/` (one JSONL per scenario).
+3. Re‑run the judging and aggregation steps above.
 
 ---
 
@@ -126,13 +159,11 @@ Datasets/Source_data/CyPort*Events/
 
 ## License
 
-This repository is released under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+CyPortQA is released under the **MIT License**. See the [LICENSE](LICENSE) file for the full text.
 
 ---
 
-## Citation
-
-> *Citation details will be released after peer‑review.*
+## Citation (to be updated post‑review)
 
 ```bibtex
 @misc{cyportqa2025,
@@ -141,5 +172,3 @@ This repository is released under the **MIT License**. See [`LICENSE`](LICENSE) 
   note   = {Anonymous submission, AAAI 2026}
 }
 ```
-
----

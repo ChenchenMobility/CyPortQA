@@ -1,6 +1,6 @@
 # CyPortQA
 
-> **Anonymous research benchmark for cyclone‑induced port preparedness (AAAI 2026 submission)**
+> **Anonymous research benchmark for cyclone preparedness in Port Operation (AAAI 2026 submission)**
 
 CyPortQA is the first multimodal QA benchmark that evaluates how well multimodal large‑language models (MLLMs) understand **tropical‑cyclone forecasts**, reason about **port‑level impacts**, and recommend **operational strategies**. The dataset fuses real‑world NOAA hurricane products, USCG port‑condition bulletins, and AIS‑derived port performance metrics from 2015‑2023, expanding them into 117 k+ question–answer pairs across three task groups:
 

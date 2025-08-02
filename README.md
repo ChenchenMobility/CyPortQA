@@ -31,7 +31,6 @@ Codes/
   o3 LLM Judger/            # evaluation prompts + judge harness
   Performance Eval/         # aggregation & plotting utilities
 requirements.txt            # pip alternative to the conda env below
-environment.yml             # full Anaconda environment (recommended)
 LICENSE                     # MIT
 README.md                   # you are here
 ```
